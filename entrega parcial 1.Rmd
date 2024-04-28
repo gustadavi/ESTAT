@@ -1,0 +1,74 @@
+---
+title: "Entrega parcial 1"
+author: "Gustavo Davi"
+output: pdf_document
+---
+```{r}
+# importação do banco de dados e do tidyverse
+library(tidyverse)
+data <- read_csv("banco_final.csv", show_col_types = F)
+```
+
+``` {r}
+# selecionando o ano de cada observação da coluna "date_aired" do banco de dados
+year <- substr(data$date_aired, 1, 4)
+
+# Criando uma função que compara uma variável ao último ano de cada década
+decade <- function(x) {
+  if (x < "1971"){
+    return("1960's")}
+  if (x < "1981"){
+    return("1970's")}
+  if (x < "1991"){
+    return("1980's")}
+  if (x < "2001"){
+    return("1990's")}
+  if (x < "2011"){
+    return("2000's")}
+  if (x < "2021"){
+    return("2010's")}
+  if (x < "2031"){
+    return("2020's")}
+}
+
+# aplicando a função "decade" na lista "year"
+result <- lapply(year, decade)
+
+# Criando a coluna "decade" no banco de dados e atribundo os valores da variável "result"
+data$decade <- result
+
+# Criando uma variável com os valores do número de lançamentos por década e formato de lançamento
+lanc_decade <- data %>%
+  group_by(decade, format) %>%
+  rename(decade = "decade") %>%
+  count()
+
+lanc_decade$decade = as.character(lanc_decade$decade)
+
+lanc_decade
+```
+
+```{r}
+ggplot(lanc_decade, aes(x = decade, y = n)) + geom_col(aes(fill = format), position = "dodge") + labs(x = "Década", y = "Número de Lançamentos")
+```
+
+```{r}
+lanc_decade %>%
+  group_by(decade) %>%
+  summarise(mean = n/603)
+```
+
+
+```{r}
+decade_lanc <- data %>%
+  group_by(decade) %>%
+  rename(decade = "decade") %>%
+  count()
+
+decade_lanc$decade = as.character(decade_lanc$decade)
+
+decade_lanc %>%
+  group_by(decade) %>%
+  summarise(mean = n/603)
+```
+
